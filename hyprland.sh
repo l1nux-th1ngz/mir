@@ -30,6 +30,10 @@ printf " Doing some pacman tweaks before actual installation of packages...\n"
 sudo sed -i "s/-j2/-j$(nproc)/;/^#MAKEFLAGS/s/^#//" /etc/makepkg.conf
 sudo grep -q "ILoveCandy" /etc/pacman.conf || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
 sudo sed -Ei "s/^#(ParallelDownloads).*/\1 = 15/;/^#Color$/s/#//" /etc/pacman.conf
+# aur helpers
+sudo pacman -S --noconfirm autoconf autoconf-archive automake go git base-devel multilib-devel
+# install yay
+git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
 
 # Check if yay is installed
 ISyay=/sbin/yay
@@ -64,7 +68,7 @@ print_success() {
 }
 
 ### Install packages ####
-read -n1 -rep "${CAT} Would you like to install the packages? (y)" inst
+read -n1 -rep "${CAT} Would you like to install the packages? (y/n)" inst
 echo
 
 if [[ $inst =~ ^[Nn]$ ]]; then
@@ -73,17 +77,26 @@ if [[ $inst =~ ^[Nn]$ ]]; then
         fi
 
 if [[ $inst =~ ^[Yy]$ ]]; then
-   yay_pkgs="kripton-theme-git waybar-hyprland-git cava timeshift-bin timeshift-autosnap sddm neofetch wofi ranger plymouth"
-   hypr_pkgs="hyprland cliphist dunst rofi grim slurp imv pamixer pipewire pipewire-pulse pipewire-audio wireplumber polkit-kde-agent qt6-wayland qt5-wayland swaybg swaylock swayidle xdg-desktop-portal-hyprland xdg-user-dirs"    
-   font_pkgs="ttf-font-awesome ttf-jetbrains-mono ttf-jetbrains-mono-nerd"
-   app_pkgs="mpd vlc bluez bluez-utils fzf git htop imv lf man-db mesa mesa-utils neofetch neovim ranger tlp zip unzip zsh zsh-syntax-highlighting"
-   app_pkgs2="udisks2 firefox mpv thunar thunar-archive-plugin thunar-volman udiskie"
+   yay_pkgs="kripton-theme-git waybar-hyprland-git wofi brightnessctl clipman cava timeshift-bin gtk-layer-shell timeshift-autosnap"
+   hypr_pkgs="hyprland-git cliphist dunst kitty grim slurp imv pamixer pipewire pipewire-pulse pipewire-audio wireplumber polkit-kde-agent qt6-wayland qt5-wayland swaybg swaylock swayidle xdg-desktop-portal-hyprland xdg-user-dirs"    
+   font_pkgs="ttf-font-awesome ttf-jetbrains-mono ttf-jetbrains-mono-nerd ttf-iosevka-nerd adobe-source-code-pro-fonts"
+   app_pkgs="xdg-desktop-portal-gtk eww-wayland swww bluez bluez-utils fzf git htop imv lf man-db mesa mesa-utils neofetch neovim ranger tlp zip unzip zsh zsh-syntax-highlighting"
+   app_pkgs2="udisks2 firefox mpv thunar thunar-archive-plugin thunar-volman blueman udiskie"
+   app_pkgs3="gdb ninja gcc cmake meson libxcb xcb-proto xcb-util xcb-util-keysyms libxfixes libx11 libxcomposite xorg-xinput libxrender pixman wayland-protocols cairo pango seatd libxkbcommon xcb-util-wm xorg-xwayland libinput libliftoff libdisplay-info cpio tomlplusplus
+   app_pkgs4="blueman nwg-look-bin gvfs neovim neovide qt5ct qt6ct btop jo jq aalib ip2d ascii mpv jp2a noise-suppression-for-voice ffmpegthumbnailer tumbler rofi-lbonn-wayland nodejs playerctl pavucontrol spotify  spotify-adblock-git deadd-notification-center-bin"
 
-
-    if ! yay -S --noconfirm $yay_pkgs $hypr_pkgs $font_pkgs $app_pkgs $app_pkgs2 2>&1 | tee -a $LOG; then
+     
+    if ! yay -S --noconfirm $yay_pkgs $hypr_pkgs $font_pkgs $app_pkgs $app_pkgs2 $app_pkgs3 $app_pkgs4 2>&1 | tee -a $LOG; then
         print_error " Failed to install additional packages - please check the install.log \n"
         exit 1
     fi
+
+    fi
+    xdg-user-dirs-update
+    echo
+    print_success " All necessary packages installed successfully."
+    
+ fi
 
     echo
     print_success " All necessary packages installed successfully."
@@ -95,10 +108,10 @@ fi
 
 
 ### Copy Config Files ###
-read -n1 -rep "${CAT} Would you like to copy config files? (y)" CFG
+read -n1 -rep "${CAT} Would you like to copy config files? (y,n)" CFG
 if [[ $CFG =~ ^[Yy]$ ]]; then
     printf " Copying config files...\n"
-    cp -r .config/kitty ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/alacritty ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/shell ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/swaylock ~/.config/ 2>&1 | tee -a $LOG
     cp .config/background ~/.config/ 2>&1 | tee -a $LOG
@@ -108,8 +121,12 @@ if [[ $CFG =~ ^[Yy]$ ]]; then
     cp -r .config/rofi ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/zathura ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/wofi ~/.config/ 2>&1 | tee -a $LOG
-    cp -r .config/neofetch ~/.config/ 2>&1 | tee -a $LOG
-    cp -r .config/ranger ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/deadd ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/mako ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/cava ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/kitty ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/rofi ~/.config/ 2>&1 | tee -a $LOG
+    
 
     mkdir ~/.local/bin  ~/.cache/zsh 2>&1 | tee -a $LOG
     mkdir ~/Git ~/gitPackages ~/Code ~/Projects 2>&1 | tee -a $LOG
@@ -144,4 +161,3 @@ if [[ $HYP =~ ^[Yy]$ ]]; then
 else
     exit
 fi
-
