@@ -29,7 +29,7 @@ sleep 3
 printf " Doing some pacman tweaks before actual installation of packages...\n"
 sudo sed -i "s/-j2/-j$(nproc)/;/^#MAKEFLAGS/s/^#//" /etc/makepkg.conf
 sudo grep -q "ILoveCandy" /etc/pacman.conf || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
-sudo sed -Ei "s/^#(ParallelDownloads).*/\1 = 5/;/^#Color$/s/#//" /etc/pacman.conf
+sudo sed -Ei "s/^#(ParallelDownloads).*/\1 = 15/;/^#Color$/s/#//" /etc/pacman.conf
 
 # Check if yay is installed
 ISyay=/sbin/yay
@@ -64,7 +64,7 @@ print_success() {
 }
 
 ### Install packages ####
-read -n1 -rep "${CAT} Would you like to install the packages? (y/n)" inst
+read -n1 -rep "${CAT} Would you like to install the packages? (y)" inst
 echo
 
 if [[ $inst =~ ^[Nn]$ ]]; then
@@ -73,11 +73,11 @@ if [[ $inst =~ ^[Nn]$ ]]; then
         fi
 
 if [[ $inst =~ ^[Yy]$ ]]; then
-   yay_pkgs="kripton-theme-git waybar-hyprland-git cava timeshift-bin timeshift-autosnap"
-   hypr_pkgs="hyprland cliphist dunst foot rofi grim slurp imv pamixer pipewire pipewire-pulse pipewire-audio wireplumber polkit-kde-agent qt6-wayland qt5-wayland swaybg swaylock swayidle xdg-desktop-portal-hyprland xdg-user-dirs"    
+   yay_pkgs="kripton-theme-git waybar-hyprland-git cava timeshift-bin timeshift-autosnap sddm neofetch wofi ranger plymouth"
+   hypr_pkgs="hyprland cliphist dunst rofi grim slurp imv pamixer pipewire pipewire-pulse pipewire-audio wireplumber polkit-kde-agent qt6-wayland qt5-wayland swaybg swaylock swayidle xdg-desktop-portal-hyprland xdg-user-dirs"    
    font_pkgs="ttf-font-awesome ttf-jetbrains-mono ttf-jetbrains-mono-nerd"
-   app_pkgs="android-file-transfer android-tools bluez bluez-utils fzf git htop imv lf man-db mesa mesa-utils neofetch neovim ranger tlp zip unzip zsh zsh-syntax-highlighting"
-   app_pkgs2="code firefox mpv thunar thunar-archive-plugin thunar-volman udiskie"
+   app_pkgs="mpd vlc bluez bluez-utils fzf git htop imv lf man-db mesa mesa-utils neofetch neovim ranger tlp zip unzip zsh zsh-syntax-highlighting"
+   app_pkgs2="udisks2 firefox mpv thunar thunar-archive-plugin thunar-volman udiskie"
 
 
     if ! yay -S --noconfirm $yay_pkgs $hypr_pkgs $font_pkgs $app_pkgs $app_pkgs2 2>&1 | tee -a $LOG; then
@@ -95,10 +95,10 @@ fi
 
 
 ### Copy Config Files ###
-read -n1 -rep "${CAT} Would you like to copy config files? (y,n)" CFG
+read -n1 -rep "${CAT} Would you like to copy config files? (y)" CFG
 if [[ $CFG =~ ^[Yy]$ ]]; then
     printf " Copying config files...\n"
-    cp -r .config/foot ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/kitty ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/shell ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/swaylock ~/.config/ 2>&1 | tee -a $LOG
     cp .config/background ~/.config/ 2>&1 | tee -a $LOG
@@ -107,6 +107,9 @@ if [[ $CFG =~ ^[Yy]$ ]]; then
     cp -r .config/hypr ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/rofi ~/.config/ 2>&1 | tee -a $LOG
     cp -r .config/zathura ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/wofi ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/neofetch ~/.config/ 2>&1 | tee -a $LOG
+    cp -r .config/ranger ~/.config/ 2>&1 | tee -a $LOG
 
     mkdir ~/.local/bin  ~/.cache/zsh 2>&1 | tee -a $LOG
     mkdir ~/Git ~/gitPackages ~/Code ~/Projects 2>&1 | tee -a $LOG
